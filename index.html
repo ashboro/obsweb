@@ -11,20 +11,40 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .page-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
         .prose-dark {
             color: #d1d5db;
         }
-        .prose-dark h1, .prose-dark h2, .prose-dark h3, .prose-dark h4 { color: #f9fafb; }
-        .prose-dark a { color: #5eead4; }
-        .prose-dark strong { color: #f9fafb; }
+        .prose-dark h1, .prose-dark h2, .prose-dark h3, .prose-dark h4, .prose-dark h5, .prose-dark h6 {
+            color: #f9fafb;
+        }
+        .prose-dark a {
+            color: #38bdf8;
+        }
+        .prose-dark strong {
+            color: #e5e7eb;
+        }
         .prose-dark blockquote {
             border-left-color: #4b5563;
             color: #9ca3af;
@@ -35,125 +55,104 @@
             padding: 2px 4px;
             border-radius: 4px;
         }
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        }
-        .sidebar-link:hover, .sidebar-link.active {
-            background-color: #374151;
-            color: #ffffff;
-        }
-        .sidebar-link svg {
-            margin-right: 0.75rem;
-        }
-        .page-content {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .quiz-option.correct { background-color: rgba(16, 185, 129, 0.2); border-color: #10B981; }
+        .quiz-option.incorrect { background-color: rgba(239, 68, 68, 0.2); border-color: #EF4444; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-300">
-
+<body class="bg-slate-900 text-slate-300">
     <div class="flex h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
+
         <!-- Sidebar -->
-        <aside id="sidebar" class="bg-gray-800 text-gray-200 w-64 fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
-            <div class="p-4">
-                <h1 class="text-2xl font-bold text-white flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-teal-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 014 0v.5A2.5 2.5 0 0114.5 11H13v1.5A1.5 1.5 0 0111.5 14H11a1.5 1.5 0 01-1.465-1.118l-2.411-6.028A6.002 6.002 0 014.332 8.027z" clip-rule="evenodd" />
-                    </svg>
-                    Study Kit
+        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-slate-800/80 backdrop-blur-sm text-slate-200 p-4 z-30 transition-transform -translate-x-full lg:translate-x-0 lg:static">
+            <div class="flex justify-between items-center mb-6 lg:mb-8">
+                <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M4.222 4.222l1.414 1.414m12.728 0l-1.414 1.414M5.636 18.364l-1.414 1.414M12 18a6 6 0 100-12 6 6 0 000 12z" /></svg>
+                    <span>Carbon Study Kit</span>
                 </h1>
-                <p class="text-xs text-gray-400 mt-1 ml-10">Carbon & Life</p>
+                <button id="close-sidebar-btn" class="lg:hidden text-slate-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
-            <nav class="mt-4 px-2 space-y-1">
-                <span class="px-4 text-xs font-semibold uppercase text-gray-500">Core Content</span>
-                <a href="#" class="sidebar-link active" data-page="home">Home</a>
-                <a href="#" class="sidebar-link" data-page="summary">Summary & Key Points</a>
-                <a href="#" class="sidebar-link" data-page="study-guide">Detailed Study Guide</a>
-                <a href="#" class="sidebar-link" data-page="outline">Document Outline</a>
-                <a href="#" class="sidebar-link" data-page="mind-map">Mind Map</a>
-                
-                <span class="px-4 pt-4 text-xs font-semibold uppercase text-gray-500">Deeper Dive</span>
-                <a href="#" class="sidebar-link" data-page="key-terms">Key Terms & Concepts</a>
-                <a href="#" class="sidebar-link" data-page="timeline">Timeline of Discoveries</a>
-                <a href="#" class="sidebar-link" data-page="applications">Real-World Applications</a>
-                <a href="#" class="sidebar-link" data-page="study-path">In-depth Study Path</a>
-                
-                <span class="px-4 pt-4 text-xs font-semibold uppercase text-gray-500">Study Tools</span>
-                <a href="#" class="sidebar-link" data-page="glossary">Glossary</a>
-                <a href="#" class="sidebar-link" data-page="quizzes">Quizzes</a>
+            <nav>
+                <ul>
+                    <li class="mb-2"><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="home">Home</a></li>
+                    <li class="mt-4 mb-2 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Core Content</li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="summary">Summary & Key Points</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="outline">Document Outline</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="study-guide">Detailed Study Guide</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="mind-map">Mind Map</a></li>
+                    
+                    <li class="mt-4 mb-2 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Deeper Dive</li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="hierarchical-terms">Key Terms & Concepts</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="timeline">Timeline of Discoveries</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="applications">Real-World Applications</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="study-path">In-depth Study Path</a></li>
+
+                    <li class="mt-4 mb-2 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Study Tools</li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="glossary">Glossary of Terms</a></li>
+                    <li><a href="#" class="nav-link block px-4 py-2 rounded-md font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-page="quizzes">Quizzes</a></li>
+                </ul>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col lg:ml-64">
-            <header class="bg-gray-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between p-4 border-b border-gray-700 lg:justify-end">
-                <button id="mobile-menu-button" class="lg:hidden text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
+        <main class="flex-1 overflow-y-auto">
+            <header class="sticky top-0 bg-slate-900/70 backdrop-blur-sm z-10 p-4 border-b border-slate-700/50 flex items-center">
+                <button id="open-sidebar-btn" class="lg:hidden mr-4 text-slate-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                 </button>
-                <div id="breadcrumb" class="text-sm text-gray-400">
-                    <span>Home</span>
+                <div id="breadcrumb" class="text-sm text-slate-400">
+                    <span class="breadcrumb-item">Home</span>
                 </div>
             </header>
-            
-            <main class="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
-                <!-- Page Content Divs -->
 
-                <!-- Home Page -->
-                <div class="page-content" id="page-home" style="display: block;">
-                    <div class="text-center rounded-lg bg-gray-800 p-12 shadow-2xl">
+            <div class="p-4 sm:p-6 lg:p-8">
+                <!-- Page: Home -->
+                <div class="page-content" id="home" style="display: block;">
+                    <div class="text-center py-16">
                         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Interactive Study Kit</h1>
-                        <p class="text-xl md:text-2xl text-teal-300 mb-8">Carbon: The Foundation of Biological Molecules</p>
-                        <p class="max-w-3xl mx-auto text-gray-300">
-                            Welcome to your generated study kit! This interactive website contains all the key concepts from your notes. Use the sidebar to navigate through summaries, study guides, quizzes, and more.
-                        </p>
+                        <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">Welcome to your generated study kit on Carbon, the foundation of biological molecules. Use the navigation to explore the different sections.</p>
                     </div>
-
-                    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h2 class="text-xl font-semibold text-white mb-3">Core Content</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Core Content -->
+                        <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                            <h2 class="text-lg font-semibold text-white mb-3">Core Content</h2>
                             <ul class="space-y-2">
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="summary">Summary & Key Points</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="outline">Document Outline</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="study-guide">Detailed Study Guide</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="mind-map">Mind Map Visualization</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="summary">Summary & Key Points</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="outline">Document Outline</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="study-guide">Detailed Study Guide</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="mind-map">Mind Map Visualization</a></li>
                             </ul>
                         </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h2 class="text-xl font-semibold text-white mb-3">Deeper Dive</h2>
+                        <!-- Deeper Dive -->
+                        <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                            <h2 class="text-lg font-semibold text-white mb-3">Deeper Dive</h2>
                             <ul class="space-y-2">
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="key-terms">Key Terms & Concepts</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="timeline">Timeline of Discoveries</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="applications">Real-World Applications</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="study-path">In-depth Study Path</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="hierarchical-terms">Key Terms & Concepts</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="timeline">Timeline of Discoveries</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="applications">Real-World Applications</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="study-path">In-depth Study Path</a></li>
                             </ul>
                         </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h2 class="text-xl font-semibold text-white mb-3">Study Tools & Quizzes</h2>
+                        <!-- Study Tools -->
+                        <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                            <h2 class="text-lg font-semibold text-white mb-3">Study Tools</h2>
                             <ul class="space-y-2">
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="glossary">Glossary of Terms</a></li>
-                                <li><a href="#" class="internal-link text-teal-400 hover:text-teal-300" data-page="quizzes">Interactive Quizzes</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="glossary">Glossary of Terms</a></li>
+                                <li><a href="#" class="nav-link text-sky-400 hover:text-sky-300 hover:underline" data-page="quizzes">Quizzes</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Summary Page -->
-                <div class="page-content prose-dark max-w-none" id="page-summary" style="display: none;">
+                <!-- Page: Summary -->
+                <div class="page-content prose-dark max-w-none" id="summary" style="display: none;">
                     <h1>Summary & Key Points</h1>
-                    <img src="https://images.unsplash.com/photo-1532187643623-8f2264d8e8a9?q=80&w=1600&auto=format&fit=crop" alt="Abstract molecular structure" class="rounded-lg shadow-lg my-6 w-full object-cover h-64">
+                    <img src="assets/summary_1.png" alt="Summary Image" class="rounded-lg shadow-lg my-6 max-w-full md:max-w-xl mx-auto">
                     <p>This document introduces the fundamental role of carbon in biological molecules. It explains why carbon is essential for life, detailing its unique bonding properties that allow it to form complex macromolecules like proteins, DNA, carbohydrates, and lipids.</p>
-                    
-                    <h2 class="text-2xl font-semibold text-white mt-8">Top 5 Key Takeaways:</h2>
+                    <p>Here are the top 5 key takeaways:</p>
                     <ol class="list-decimal pl-5 space-y-2">
                         <li><strong>Carbon is the backbone of life:</strong> It's the fundamental component of all biological macromolecules essential for cells.</li>
                         <li><strong>Versatile bonding:</strong> Carbon atoms can form up to four covalent bonds, making them ideal for creating the complex structures of macromolecules.</li>
@@ -161,100 +160,133 @@
                         <li><strong>Macromolecules are carbon-based:</strong> Proteins, nucleic acids (RNA/DNA), carbohydrates, and lipids are all organic (carbon-containing) molecules vital for life.</li>
                         <li><strong>Organic molecules are diverse:</strong> Any carbon-containing liquid, solid, or gas is considered an organic molecule, with macromolecules being a critical subset.</li>
                     </ol>
-                    
-                    <h2 class="text-2xl font-semibold text-white mt-10">Related Videos to Explore</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="font-bold text-lg text-teal-300">For "Carbon is the backbone of life":</h3>
-                            <ul class="list-disc pl-5 mt-2 space-y-1">
-                                <li><a href="https://www.youtube.com/watch?v=R-Lg2h_B0w8" target="_blank" rel="noopener noreferrer">Nature's Tiny Factories: Fatty Acid Synthesis</a></li>
+                    <h2 class="mt-8">Related Videos to Explore</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3>For the point: <em>Carbon is the backbone of life</em></h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><a href="https://www.youtube.com/watch?v=R-Lg2h_B0w8" target="_blank" rel="noopener noreferrer">Nature's Tiny Factories: Fatty Acid Synthesis and Assembly Line Enzymes</a></li>
                                 <li><a href="https://www.youtube.com/watch?v=43DuLcBFxoY" target="_blank" rel="noopener noreferrer">The Carbon Backbone of Life</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=TF76ITo3R1U" target="_blank" rel="noopener noreferrer">Carbon and Our Changing Climate</a></li>
                             </ul>
                         </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="font-bold text-lg text-teal-300">For "Versatile bonding":</h3>
-                            <ul class="list-disc pl-5 mt-2 space-y-1">
-                                <li><a href="https://www.youtube.com/watch?v=5kCZvHa6w4M" target="_blank" rel="noopener noreferrer">Carbon and Its Compounds</a></li>
-                                <li><a href="https://www.youtube.com/watch?v=S_R-Mh0lq8E" target="_blank" rel="noopener noreferrer">Why Is Carbon Important?</a></li>
+                        <div>
+                            <h3>For the point: <em>Versatile bonding</em></h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><a href="https://www.youtube.com/watch?v=5kCZvHa6w4M" target="_blank" rel="noopener noreferrer">One Shot | Class 10 Chemistry Chapter 4 | Carbon and Its Compounds | Anjali Verma</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=S_R-Mh0lq8E" target="_blank" rel="noopener noreferrer">Why Is Carbon Important? Exploring Carbon's Significance</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=d_i4Q_B3n_I" target="_blank" rel="noopener noreferrer">Why Is Carbon Important to Life? Key Reasons Explained</a></li>
                             </ul>
                         </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="font-bold text-lg text-teal-300">For "Macromolecules are carbon-based":</h3>
-                            <ul class="list-disc pl-5 mt-2 space-y-1">
-                                <li><a href="https://www.youtube.com/watch?v=EKGz-y_P_c4" target="_blank" rel="noopener noreferrer">Biological Molecules: Carbs, Lipids, Proteins...</a></li>
-                                <li><a href="https://www.youtube.com/watch?v=tj_Cj3wQ9cQ" target="_blank" rel="noopener noreferrer">Macromolecules Review</a></li>
-                            </ul>
+                        <div>
+                           <h3>For the point: <em>Macromolecules are carbon-based</em></h3>
+                           <ul class="list-disc pl-5 space-y-1">
+                                <li><a href="https://www.youtube.com/watch?v=EKGz-y_P_c4" target="_blank" rel="noopener noreferrer">Biological Molecules: Carbohydrates, Lipids, Proteins & Nucleic Acids</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=tj_Cj3wQ9cQ" target="_blank" rel="noopener noreferrer">Macromolecules (Carbs, Lipids, Proteins, Nucleic Acids)</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=zJg5_bS1-eE" target="_blank" rel="noopener noreferrer">The Four Biomolecule Families: Carbs, Lipids, Proteins, Nucleic Acids (Introductory Biochemistry)</a></li>
+                           </ul>
                         </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="font-bold text-lg text-teal-300">For "Organic molecules are diverse":</h3>
-                            <ul class="list-disc pl-5 mt-2 space-y-1">
-                                <li><a href="https://youtu.be/H8WJ2KENlK0" target="_blank" rel="noopener noreferrer">Crash Course Biology #3</a></li>
-                                <li><a href="https://www.youtube.com/watch?v=nMZ2G0cT86I" target="_blank" rel="noopener noreferrer">Macromolecules | Classes and Functions</a></li>
-                            </ul>
+                        <div>
+                           <h3>For the point: <em>Organic molecules are diverse</em></h3>
+                           <ul class="list-disc pl-5 space-y-1">
+                               <li><a href="https://youtu.be/H8WJ2KENlK0" target="_blank" rel="noopener noreferrer">Biological Molecules - You Are What You Eat: Crash Course Biology #3</a></li>
+                               <li><a href="https://www.youtube.com/watch?v=nMZ2G0cT86I" target="_blank" rel="noopener noreferrer">Macromolecules | Classes and Functions</a></li>
+                               <li><a href="https://www.youtube.com/watch?v=k_l7H_X6EaE" target="_blank" rel="noopener noreferrer">Macromolecules Review</a></li>
+                           </ul>
                         </div>
                     </div>
-                    <hr class="border-gray-700 my-8">
-                    <p>See also: <a href="#" class="internal-link" data-page="outline">Document Outline</a>, <a href="#" class="internal-link" data-page="glossary">Glossary</a></p>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link" data-page="outline">Outline</a>, <a href="#" class="internal-link" data-page="glossary">Glossary</a></p>
                 </div>
-
-                <!-- Outline Page -->
-                <div class="page-content prose-dark max-w-none" id="page-outline" style="display: none;">
+                
+                <!-- Page: Outline -->
+                <div class="page-content prose-dark max-w-none" id="outline" style="display: none;">
                     <h1>Document Outline</h1>
-                    <p>Here's a hierarchical outline of the document's main topics and sub-topics.</p>
-                    <ul class="list-disc space-y-2 mt-6">
+                    <p>Here's a hierarchical outline of the document's main topics and sub-topics, structured for a mind map:</p>
+                    <ul class="list-disc pl-5 space-y-2">
                         <li><strong>Carbon: The Foundation of Life's Molecules</strong>
-                            <ul class="list-circle pl-6 mt-2 space-y-1">
+                            <ul class="list-disc pl-5 space-y-2 mt-2">
                                 <li><strong>Learning Objectives</strong>
-                                    <ul class="list-square pl-6 mt-1">
+                                    <ul class="list-disc pl-5 space-y-2 mt-2">
                                         <li>Explain why carbon is important for life</li>
                                         <li>Describe the role of functional groups in biological molecules</li>
                                     </ul>
                                 </li>
                                 <li><strong>Biological Macromolecules</strong>
-                                    <ul class="list-square pl-6 mt-1">
-                                        <li>Examples: Proteins, Nucleic Acids (RNA, DNA), Carbohydrates, Lipids</li>
+                                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                                        <li>Examples:
+                                            <ul class="list-disc pl-5 space-y-2 mt-2">
+                                                <li>Proteins</li>
+                                                <li>Nucleic Acids (RNA, DNA)</li>
+                                                <li>Carbohydrates</li>
+                                                <li>Lipids</li>
+                                            </ul>
+                                        </li>
                                         <li>Comprise cells</li>
                                         <li>Subset of Organic Molecules</li>
                                     </ul>
                                 </li>
                                 <li><strong>Organic Molecules</strong>
-                                    <ul class="list-square pl-6 mt-1">
+                                    <ul class="list-disc pl-5 space-y-2 mt-2">
                                         <li>Definition: Any carbon-containing liquid, solid, or gas</li>
                                         <li>Especially important for life</li>
                                     </ul>
                                 </li>
                                 <li><strong>The Carbon Atom</strong>
-                                    <ul class="list-square pl-6 mt-1">
+                                    <ul class="list-disc pl-5 space-y-2 mt-2">
                                         <li>Fundamental component ("backbone") of macromolecules</li>
-                                        <li>Unique properties & a versatile element</li>
+                                        <li>Unique properties</li>
+                                        <li>Versatile element</li>
                                     </ul>
                                 </li>
                                 <li><strong>Carbon's Bonding Capabilities</strong>
-                                    <ul class="list-square pl-6 mt-1">
-                                        <li>Atomic Structure: Atomic number 6, 4 outer shell electrons</li>
-                                        <li>Bonding Mechanism: Forms up to four covalent bonds, satisfies octet rule</li>
-                                        <li>Example: Methane (CH4)</li>
+                                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                                        <li>Atomic Structure:
+                                            <ul class="list-disc pl-5 space-y-2 mt-2">
+                                                <li>Atomic number: 6 (6 electrons, 6 protons)</li>
+                                                <li>Electron shells: 2 (inner), 4 (second/outer)</li>
+                                                <li>Incomplete outermost shell</li>
+                                            </ul>
+                                        </li>
+                                        <li>Bonding Mechanism:
+                                            <ul class="list-disc pl-5 space-y-2 mt-2">
+                                                <li>Forms up to four covalent bonds</li>
+                                                <li>Satisfies the octet rule</li>
+                                            </ul>
+                                        </li>
+                                        <li>Example: Methane (CH4)
+                                            <ul class="list-disc pl-5 space-y-2 mt-2">
+                                                <li>Four hydrogen atoms</li>
+                                                <li>Each forms a single covalent bond with carbon</li>
+                                                <li>Achieves filled outermost shell by sharing electrons</li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
-                                <li><strong>Hydrocarbons</strong> (Mentioned as a heading)</li>
+                                <li><strong>Hydrocarbons</strong> (Mentioned as a heading, but not detailed in this excerpt)</li>
                             </ul>
                         </li>
                     </ul>
-                    <hr class="border-gray-700 my-8">
-                    <p>For a more detailed explanation, see the <a href="#" class="internal-link" data-page="study-guide">Detailed Study Guide</a>.</p>
+                    <hr class="border-slate-700 my-8">
+                    <p>For a more detailed explanation, see the <a href="#" class="internal-link" data-page="study-guide">Study Guide</a>.</p>
                 </div>
-                
-                <!-- Study Guide Page -->
-                <div class="page-content prose-dark max-w-none" id="page-study-guide" style="display: none;">
+
+                <!-- Page: Study Guide -->
+                <div class="page-content prose-dark max-w-none" id="study-guide" style="display: none;">
                     <h1>Detailed Study Guide</h1>
-                    <h2>1. Learning Objectives</h2>
+                    <p>Here is a detailed and comprehensive explanation of the key topics, concepts, and themes from the document, structured as a study guide:</p>
+                    <hr class="border-slate-700 my-4">
+                    <h2>Understanding Carbon: The Foundation of Biological Molecules</h2>
+                    <p>This study guide explores the critical role of carbon in forming the complex molecules essential for life, often referred to as organic molecules and macromolecules.</p>
+                    
+                    <h3>1. Learning Objectives</h3>
                     <p>By the end of this section, you should be able to:</p>
                     <ul>
                         <li><strong>Explain why carbon is important for life:</strong> Understand the fundamental reasons carbon is chosen as the structural basis for biological molecules.</li>
                         <li><strong>Describe the role of functional groups in biological molecules:</strong> (While the document mentions this objective, it does not detail functional groups. This indicates it will be covered in subsequent sections.)</li>
                     </ul>
-
-                    <h2>2. Macromolecules: The Building Blocks of Cells</h2>
+                    
+                    <h3>2. Macromolecules: The Building Blocks of Cells</h3>
                     <p>Cells are composed of a vast array of intricate and large molecules known as <strong>macromolecules</strong>. These are complex organic molecules that perform various crucial functions within an organism.</p>
                     <ul>
                         <li><strong>Examples of Macromolecules:</strong>
@@ -266,429 +298,574 @@
                             </ul>
                         </li>
                     </ul>
-
-                    <h2>3. Organic Molecules: Carbon's Broad Category</h2>
-                    <p>The term <strong>organic molecules</strong> refers to any liquid, solid, or gas that contains carbon. While this definition is broad, macromolecules are a specialized and crucial subset of organic molecules that are explicitly important for life processes.</p>
-
-                    <h2>4. Carbon: The "Backbone" of Life</h2>
-                    <p>The single most important element forming the basis of all biological macromolecules is <strong>carbon</strong>. Its unique atomic properties make it exceptionally versatile and ideal to serve as the <strong>basic structural component</strong>, or "backbone," for these complex compounds.</p>
-
-                    <h2>5. Carbon's Unique Bonding Properties</h2>
-                    <h3>5.1. Atomic Structure and Electron Configuration</h3>
+                    <p>These macromolecules are all fundamentally built upon a carbon framework, highlighting carbon's central role in biochemistry.</p>
+                    
+                    <h3>3. Organic Molecules: Carbon's Broad Category</h3>
+                    <p>The term <strong>organic molecules</strong> refers to any liquid, solid, or gas that contains carbon. While this definition is broad, macromolecules are a specialized and crucial subset of organic molecules that are explicitly important for life processes. The study of organic molecules and their reactions is known as organic chemistry, a field directly underpinning biochemistry.</p>
+                    
+                    <h3>4. Carbon: The "Backbone" of Life</h3>
+                    <p>The single most important element forming the basis of all biological macromolecules is <strong>carbon</strong>. Its unique atomic properties make it exceptionally versatile and ideal to serve as the <strong>basic structural component</strong>, or "backbone," for these complex compounds. Without carbon's ability to form diverse and stable structures, the intricate chemistry of life as we know it would not exist.</p>
+                    
+                    <h3>5. Carbon's Unique Bonding Properties</h3>
+                    <p>The versatility of carbon stems directly from its atomic structure and its capacity to form stable chemical bonds.</p>
+                    
+                    <h4>5.1. Atomic Structure and Electron Configuration</h4>
                     <ul>
-                        <li><strong>Atomic Number:</strong> Carbon has an atomic number of 6 (six protons and six electrons).</li>
-                        <li><strong>Electron Shells:</strong> The first shell holds two electrons, and the second (outermost) shell contains the remaining four electrons. This outer shell is considered <strong>incomplete</strong>.</li>
+                        <li><strong>Atomic Number:</strong> Carbon has an atomic number of 6, meaning it possesses six protons and six electrons.</li>
+                        <li><strong>Electron Shells:</strong>
+                            <ul>
+                                <li>The first (innermost) electron shell holds two electrons.</li>
+                                <li>The second (outermost) electron shell contains the remaining four electrons. This outer shell is considered <strong>incomplete</strong>.</li>
+                            </ul>
+                        </li>
                     </ul>
-                    <h3>5.2. Forming Covalent Bonds to Satisfy the Octet Rule</h3>
-                    <p>Because its outermost shell has only four electrons, carbon needs to gain or share four more to achieve a stable configuration of eight (the <strong>octet rule</strong>). It achieves this by forming up to <strong>four covalent bonds</strong> with other atoms.</p>
-                    <h3>5.3. Example: Methane (CH4)</h3>
-                    <p>The methane molecule (CH4) illustrates this perfectly. Each of the four hydrogen atoms forms a single covalent bond with the central carbon atom, resulting in a filled outermost shell for all atoms.</p>
 
-                    <h2>6. Hydrocarbons</h2>
-                    <p>While not elaborated upon, hydrocarbons are organic compounds of hydrogen and carbon. Their carbon skeletons form the basis for many more complex biological molecules.</p>
-                </div>
-
-                <!-- Mind Map Page -->
-                <div class="page-content prose-dark max-w-none" id="page-mind-map" style="display: none;">
-                    <h1>Mind Map Visualization</h1>
-                    <p>This image represents the interconnected concepts discussed in the study materials, showing how carbon's properties lead to the formation of complex macromolecules essential for life.</p>
-                    <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1633423793733-49a69a4a799c?q=80&w=1600&auto=format&fit=crop" alt="Abstract mind map or network visualization" class="rounded-lg w-full">
-                    </div>
+                    <h4>5.2. Forming Covalent Bonds to Satisfy the Octet Rule</h4>
+                    <p>Because its outermost shell has only four electrons, carbon needs to gain or share four more electrons to achieve a stable configuration of eight electrons in its outer shell (known as the <strong>octet rule</strong>).</p>
+                    <ul>
+                        <li><strong>Covalent Bonding:</strong> Carbon achieves this stability by forming <strong>covalent bonds</strong>, where it shares pairs of electrons with other atoms.</li>
+                        <li><strong>Four Bonds:</strong> Crucially, carbon atoms can form up to <strong>four covalent bonds</strong> with other atoms. This allows carbon to link with a wide variety of other atoms, including other carbon atoms, to create long chains, rings, and branched structures, forming the complex skeletons of biological molecules.</li>
+                    </ul>
+                    
+                    <h4>5.3. Example: Methane (CH4)</h4>
+                    <p>The methane molecule provides a simple illustration of carbon's bonding capacity:</p>
+                    <ul>
+                        <li><strong>Chemical Formula:</strong> CH4</li>
+                        <li><strong>Bonding:</strong> Each of the four hydrogen atoms forms a single covalent bond with the central carbon atom. They achieve this by sharing a pair of electrons.</li>
+                        <li><strong>Result:</strong> This sharing results in a filled outermost shell for both the carbon and hydrogen atoms, achieving chemical stability.</li>
+                    </ul>
+                    
+                    <h3>6. Hydrocarbons</h3>
+                    <p>The document also mentions "Hydrocarbons" as a topic. While not elaborated upon in this specific excerpt, hydrocarbons are organic compounds composed primarily of hydrogen and carbon atoms. They represent a fundamental class of organic molecules, and their carbon skeletons form the basis for many more complex biological molecules. They are often the starting point for understanding how functional groups are attached to carbon backbones.</p>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link" data-page="timeline">Timeline of Discoveries</a>, <a href="#" class="internal-link" data-page="applications">Real-World Applications</a>, <a href="#" class="internal-link" data-page="hierarchical-terms">Key Terms & Concepts</a></p>
                 </div>
                 
-                <!-- Key Terms & Concepts Page -->
-                <div class="page-content prose-dark max-w-none" id="page-key-terms" style="display: none;">
+                <!-- Page: Glossary -->
+                <div class="page-content" id="glossary" style="display: none;">
+                    <h1 class="text-3xl font-bold text-white mb-6">Glossary of Key Terms</h1>
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Macromolecules</h2>
+                            <p class="mt-1 text-slate-300">Complex molecules, such as proteins, nucleic acids (RNA and DNA), carbohydrates, and lipids, that comprise cells and are a subset of organic molecules especially important for life.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Organic molecules</h2>
+                            <p class="mt-1 text-slate-300">Any carbon-containing liquid, solid, or gas; macromolecules are a subset of these that are especially important for life.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Carbon</h2>
+                            <p class="mt-1 text-slate-300">The fundamental element with unique properties, capable of forming up to four covalent bonds, making it the basic structural component or 'backbone' of macromolecules.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Covalent bonds</h2>
+                            <p class="mt-1 text-slate-300">Bonds formed by atoms, specifically carbon, sharing pairs of electrons with other atoms to satisfy the octet rule, allowing carbon to bond to as many as four different atoms.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Octet rule</h2>
+                            <p class="mt-1 text-slate-300">The principle satisfied by carbon atoms when they form up to four covalent bonds, resulting in a filled outermost electron shell.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Proteins</h2>
+                            <p class="mt-1 text-slate-300">A type of complex macromolecule that comprises cells.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Nucleic acids (RNA and DNA)</h2>
+                            <p class="mt-1 text-slate-300">Types of complex macromolecules (RNA and DNA) that comprise cells.</p>
+                        </div>
+                         <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Carbohydrates</h2>
+                            <p class="mt-1 text-slate-300">A type of complex macromolecule that comprises cells.</p>
+                        </div>
+                         <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Lipids</h2>
+                            <p class="mt-1 text-slate-300">A type of complex macromolecule that comprises cells.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Atomic number</h2>
+                            <p class="mt-1 text-slate-300">A characteristic of an atom, which for carbon is 6, indicating it has six electrons and six protons.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Electron shell</h2>
+                            <p class="mt-1 text-slate-300">The energy levels where electrons are located around an atom's nucleus; carbon has an inner shell (with two electrons) and a second, outermost shell (with four electrons, which is incomplete).</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-sky-400">Methane (CH4)</h2>
+                            <p class="mt-1 text-slate-300">A molecule with the chemical formula CH4, provided as an example of a carbon atom forming a single covalent bond with each of four hydrogen atoms by sharing electrons, resulting in a filled outermost shell.</p>
+                        </div>
+                    </div>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link text-sky-400 hover:underline" data-page="summary">Summary & Key Points</a></p>
+                </div>
+                
+                <!-- Page: Timeline -->
+                <div class="page-content" id="timeline" style="display: none;">
+                    <h1 class="text-3xl font-bold text-white mb-8">Timeline of Discoveries</h1>
+                    <div class="relative border-l-2 border-slate-700 ml-4">
+                        <div class="mb-8 ml-8">
+                            <span class="absolute flex items-center justify-center w-8 h-8 bg-sky-500 rounded-full -left-4 ring-8 ring-slate-800">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <h3 class="text-xl font-semibold text-white">1776: Discovery of Methane</h3>
+                            <p class="text-sm text-slate-400">By: Alessandro Volta</p>
+                            <a href="https://en.wikipedia.org/wiki/Methane" target="_blank" class="text-sky-400 text-sm hover:underline">Source</a>
+                        </div>
+                        <div class="mb-8 ml-8">
+                           <span class="absolute flex items-center justify-center w-8 h-8 bg-sky-500 rounded-full -left-4 ring-8 ring-slate-800">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <h3 class="text-xl font-semibold text-white">1828: Synthesis of Urea (disproving vitalism)</h3>
+                            <p class="text-sm text-slate-400">By: Friedrich Wöhler</p>
+                            <a href="https://courses.lumenlearning.com/suny-potsdam-organicchemistry1/chapter/history/" target="_blank" class="text-sky-400 text-sm hover:underline">Source</a>
+                        </div>
+                         <div class="mb-8 ml-8">
+                           <span class="absolute flex items-center justify-center w-8 h-8 bg-sky-500 rounded-full -left-4 ring-8 ring-slate-800">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <h3 class="text-xl font-semibold text-white">1916: Formulation of the Octet Rule</h3>
+                            <p class="text-sm text-slate-400">By: Gilbert N. Lewis</p>
+                            <a href="https://chem.libretexts.org/Bookshelves/General_Chemistry/Map%3A_Chemistry_-_The_Central_Science_(Brown_et_al.)/08._Basic_Concepts_of_Chemical_Bonding/8.2%3A_The_Octet_Rule" target="_blank" class="text-sky-400 text-sm hover:underline">Source</a>
+                        </div>
+                        <div class="mb-8 ml-8">
+                           <span class="absolute flex items-center justify-center w-8 h-8 bg-sky-500 rounded-full -left-4 ring-8 ring-slate-800">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <h3 class="text-xl font-semibold text-white">1916: Description of Covalent Bonding</h3>
+                            <p class="text-sm text-slate-400">By: Gilbert N. Lewis</p>
+                            <a href="https://en.wikipedia.org/wiki/Gilbert_N._Lewis" target="_blank" class="text-sky-400 text-sm hover:underline">Source</a>
+                        </div>
+                        <div class="ml-8">
+                           <span class="absolute flex items-center justify-center w-8 h-8 bg-sky-500 rounded-full -left-4 ring-8 ring-slate-800">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <h3 class="text-xl font-semibold text-white">April 25, 1953: Discovery of the Double Helix Structure of DNA</h3>
+                            <p class="text-sm text-slate-400">By: James Watson, Francis Crick, Rosalind Franklin, Maurice Wilkins</p>
+                            <a href="https://profiles.nlm.nih.gov/spotlight/sc/feature/doublehelix/" target="_blank" class="text-sky-400 text-sm hover:underline">Source</a>
+                        </div>
+                    </div>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link text-sky-400 hover:underline" data-page="study-guide">Study Guide</a></p>
+                </div>
+                
+                <!-- Page: Applications -->
+                <div class="page-content" id="applications" style="display: none;">
+                    <h1 class="text-3xl font-bold text-white mb-6">Real-World Applications</h1>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-white mb-2">Medicine</h2>
+                            <p>The complex carbon-based structures of proteins are leveraged in the development of life-saving drugs like insulin, numerous vaccines, and advanced diagnostic tools for detecting diseases such as heart attacks and infections.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-white mb-2">Technology</h2>
+                            <p>Carbon's ability to form versatile bonds is exploited in creating advanced materials like carbon nanotubes and graphene, which are crucial for next-generation electronics, including smaller and faster transistors, high-capacity batteries, and flexible electronic devices.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-white mb-2">Daily Life</h2>
+                            <p>Carbohydrates, as carbon-based macromolecules, serve as the primary energy source in our diets (e.g., starches in bread and rice) and are extensively utilized in the food industry as sweeteners, thickeners, and in fermentation processes for products like yogurt and alcoholic beverages.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700">
+                            <h2 class="text-xl font-semibold text-white mb-2">Biotechnology</h2>
+                            <p>Nucleic acids, with their carbon-sugar backbones, are at the core of revolutionary biotechnological applications such as gene therapy to correct genetic disorders, the rapid development of mRNA vaccines, and precise genome editing technologies like CRISPR-Cas9.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 md:col-span-2">
+                            <h2 class="text-xl font-semibold text-white mb-2">Engineering</h2>
+                            <p>The robust structural properties derived from long chains of carbon atoms are evident in carbon fiber materials, which are used in aerospace components and high-performance sports equipment for their exceptional strength-to-weight ratio.</p>
+                        </div>
+                    </div>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link text-sky-400 hover:underline" data-page="study-guide">Study Guide</a></p>
+                </div>
+
+                <!-- Page: Hierarchical Terms -->
+                <div class="page-content prose-dark max-w-none" id="hierarchical-terms" style="display: none;">
                     <h1>Key Terms & Concepts</h1>
-                    <ul class="list-disc space-y-2 mt-6">
+                    <ul class="list-disc pl-5 space-y-2">
                         <li>Learning Objectives
-                            <ul class="list-circle pl-6 mt-2 space-y-1">
+                            <ul class="list-disc pl-5 mt-2">
                                 <li>Explain why carbon is important for life</li>
                                 <li>Describe the role of functional groups in biological molecules</li>
                             </ul>
                         </li>
                         <li>Macromolecules
-                            <ul class="list-circle pl-6 mt-2 space-y-1">
-                                <li>Definition: Complex molecules, comprise cells, subset of organic molecules</li>
-                                <li>Examples: Proteins, Nucleic acids (RNA, DNA), Carbohydrates, Lipids</li>
-                                <li>Fundamental component: Carbon</li>
+                            <ul class="list-disc pl-5 mt-2">
+                                <li>Definition
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Complex molecules</li>
+                                        <li>Comprise cells</li>
+                                        <li>Subset of organic molecules</li>
+                                    </ul>
+                                </li>
+                                <li>Examples
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Proteins</li>
+                                        <li>Nucleic acids
+                                            <ul class="list-disc pl-5 mt-2">
+                                                <li>RNA</li>
+                                                <li>DNA</li>
+                                            </ul>
+                                        </li>
+                                        <li>Carbohydrates</li>
+                                        <li>Lipids</li>
+                                    </ul>
+                                </li>
+                                <li>Fundamental component
+                                    <ul class="list-disc pl-5 mt-2"><li>Carbon</li></ul>
+                                </li>
                             </ul>
                         </li>
                         <li>Organic molecules
-                            <ul class="list-circle pl-6 mt-2 space-y-1">
-                                <li>Definition: Any carbon-containing liquid, solid, or gas</li>
-                                <li>Importance: Especially important for life</li>
+                            <ul class="list-disc pl-5 mt-2">
+                                <li>Definition
+                                    <ul class="list-disc pl-5 mt-2"><li>Any carbon-containing liquid, solid, or gas</li></ul>
+                                </li>
+                                <li>Importance
+                                    <ul class="list-disc pl-5 mt-2"><li>Especially important for life</li></ul>
+                                </li>
                             </ul>
                         </li>
                         <li>Carbon Atom
-                            <ul class="list-circle pl-6 mt-2 space-y-1">
-                                <li>Properties: Unique, versatile, ideal for structural 'backbone'</li>
-                                <li>Atomic structure: Atomic number 6, 4 outermost electrons, incomplete shell</li>
-                                <li>Bonding capabilities: Forms up to four covalent bonds, satisfies octet rule</li>
-                                <li>Methane (CH4) example</li>
+                            <ul class="list-disc pl-5 mt-2">
+                                <li>Properties
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Unique properties</li>
+                                        <li>Versatile element</li>
+                                        <li>Ideal for structural component / 'backbone'</li>
+                                    </ul>
+                                </li>
+                                <li>Atomic structure
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Atomic number: 6
+                                            <ul class="list-disc pl-5 mt-2">
+                                                <li>Six electrons</li>
+                                                <li>Six protons</li>
+                                            </ul>
+                                        </li>
+                                        <li>Electron shells
+                                            <ul class="list-disc pl-5 mt-2">
+                                                <li>First two electrons fill inner shell</li>
+                                                <li>Four electrons in second/outermost shell</li>
+                                                <li>Incomplete outermost electron shell</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>Bonding capabilities
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Forms covalent bonds</li>
+                                        <li>Forms up to four covalent bonds</li>
+                                        <li>Satisfies the octet rule</li>
+                                    </ul>
+                                </li>
+                                <li>Methane molecule (CH4) example
+                                    <ul class="list-disc pl-5 mt-2">
+                                        <li>Four hydrogen atoms</li>
+                                        <li>Each forms a single covalent bond with carbon</li>
+                                        <li>Sharing a pair of electrons</li>
+                                        <li>Results in a filled outermost shell</li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li>Hydrocarbons</li>
                     </ul>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link" data-page="study-guide">Study Guide</a></p>
                 </div>
-
-                <!-- Timeline Page -->
-                <div class="page-content prose-dark max-w-none" id="page-timeline" style="display: none;">
-                    <h1>Timeline of Discoveries</h1>
-                    <div class="relative mt-8 border-l-2 border-teal-500 pl-8 space-y-12">
-                        <!-- Timeline Item -->
-                        <div class="relative">
-                            <div class="absolute -left-10 top-1 h-4 w-4 rounded-full bg-teal-400"></div>
-                            <span class="text-sm font-semibold text-gray-400">1776</span>
-                            <h3 class="text-xl font-bold text-white mt-1">Discovery of Methane</h3>
-                            <p class="text-gray-300">By: Alessandro Volta</p>
-                            <a href="https://en.wikipedia.org/wiki/Methane" target="_blank" rel="noopener noreferrer" class="text-teal-400 text-sm">Source</a>
-                        </div>
-                        <!-- Timeline Item -->
-                        <div class="relative">
-                            <div class="absolute -left-10 top-1 h-4 w-4 rounded-full bg-teal-400"></div>
-                            <span class="text-sm font-semibold text-gray-400">1828</span>
-                            <h3 class="text-xl font-bold text-white mt-1">Synthesis of Urea</h3>
-                            <p class="text-gray-300">By: Friedrich Wöhler (disproving vitalism)</p>
-                            <a href="https://courses.lumenlearning.com/suny-potsdam-organicchemistry1/chapter/history/" target="_blank" rel="noopener noreferrer" class="text-teal-400 text-sm">Source</a>
-                        </div>
-                        <!-- Timeline Item -->
-                        <div class="relative">
-                            <div class="absolute -left-10 top-1 h-4 w-4 rounded-full bg-teal-400"></div>
-                            <span class="text-sm font-semibold text-gray-400">1916</span>
-                            <h3 class="text-xl font-bold text-white mt-1">Formulation of the Octet Rule & Covalent Bonding</h3>
-                            <p class="text-gray-300">By: Gilbert N. Lewis</p>
-                            <a href="https://en.wikipedia.org/wiki/Gilbert_N._Lewis" target="_blank" rel="noopener noreferrer" class="text-teal-400 text-sm">Source</a>
-                        </div>
-                        <!-- Timeline Item -->
-                        <div class="relative">
-                            <div class="absolute -left-10 top-1 h-4 w-4 rounded-full bg-teal-400"></div>
-                            <span class="text-sm font-semibold text-gray-400">April 25, 1953</span>
-                            <h3 class="text-xl font-bold text-white mt-1">Discovery of the Double Helix Structure of DNA</h3>
-                            <p class="text-gray-300">By: James Watson, Francis Crick, Rosalind Franklin, Maurice Wilkins</p>
-                            <a href="https://profiles.nlm.nih.gov/spotlight/sc/feature/doublehelix/" target="_blank" rel="noopener noreferrer" class="text-teal-400 text-sm">Source</a>
-                        </div>
+                
+                <!-- Page: Mind Map -->
+                <div class="page-content prose-dark max-w-none" id="mind-map" style="display: none;">
+                    <h1>Mind Map</h1>
+                    <p>A visual representation of the key concepts and their relationships.</p>
+                    <div class="bg-slate-800 p-4 rounded-lg my-6">
+                        <img src="assets/mind_map_2.png" alt="Mind Map of Carbon Concepts" class="rounded-md w-full">
                     </div>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link" data-page="outline">Document Outline</a></p>
                 </div>
-
-                <!-- Applications Page -->
-                <div class="page-content prose-dark max-w-none" id="page-applications" style="display: none;">
-                    <h1>Real-World Applications</h1>
-                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-bold text-teal-300">Medicine</h3>
-                            <p class="mt-2">The complex carbon-based structures of proteins are leveraged in developing life-saving drugs like insulin, vaccines, and advanced diagnostic tools.</p>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-bold text-teal-300">Technology</h3>
-                            <p class="mt-2">Carbon's bonding versatility is exploited in advanced materials like carbon nanotubes and graphene for next-generation electronics, batteries, and flexible devices.</p>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-bold text-teal-300">Daily Life</h3>
-                            <p class="mt-2">Carbohydrates, as carbon-based macromolecules, are our primary energy source (bread, rice) and are used in the food industry as sweeteners and thickeners.</p>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-bold text-teal-300">Biotechnology</h3>
-                            <p class="mt-2">Nucleic acids are at the core of revolutionary applications like gene therapy, mRNA vaccines, and genome editing technologies like CRISPR-Cas9.</p>
-                        </div>
-                        <div class="bg-gray-800 p-6 rounded-lg col-span-1 md:col-span-2">
-                            <h3 class="text-xl font-bold text-teal-300">Engineering</h3>
-                            <p class="mt-2">The robust structural properties of carbon chains are evident in carbon fiber materials, used in aerospace and high-performance sports equipment for their strength-to-weight ratio.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Study Path Page -->
-                <div class="page-content prose-dark max-w-none" id="page-study-path" style="display: none;">
+                
+                <!-- Page: Study Path -->
+                <div class="page-content prose-dark max-w-none" id="study-path" style="display: none;">
                     <h1>In-depth Study Path</h1>
-                    <p>This is a guided path through the core concepts. Follow the sections sequentially to build your understanding.</p>
-                    
-                    <div class="mt-8 space-y-12">
-                        <!-- Step 1 -->
-                        <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col md:flex-row gap-6">
-                            <img src="https://images.unsplash.com/photo-1627993079909-74e895fd1a82?q=80&w=1600&auto=format&fit=crop" alt="Biological cells" class="w-full md:w-1/3 h-48 object-cover rounded-md">
-                            <div class="flex-1">
-                                <h2 class="text-2xl font-bold text-white">1. Biological Macromolecules: The Organic Basis of Cells</h2>
-                                <p class="mt-4">This segment introduces the fundamental building blocks of life: **macromolecules**. These include essential compounds like **proteins**, **nucleic acids (RNA and DNA)**, **carbohydrates**, and **lipids**. The document clarifies that these are a crucial subset of **organic molecules**, which are broadly defined as any liquid, solid, or gas containing carbon.</p>
-                            </div>
-                        </div>
-                        <!-- Step 2 -->
-                        <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col md:flex-row-reverse gap-6">
-                            <img src="https://images.unsplash.com/photo-1634733611004-63cf17dff702?q=80&w=1600&auto=format&fit=crop" alt="Molecular structures" class="w-full md:w-1/3 h-48 object-cover rounded-md">
-                            <div class="flex-1">
-                                <h2 class="text-2xl font-bold text-white">2. Carbon: The Essential 'Backbone' of Life's Molecules</h2>
-                                <p class="mt-4">Building on the introduction of macromolecules, this section explains *why* carbon is indispensable. Carbon serves as the **basic structural component**, or **'backbone,'** upon which these complex molecules are built. Its suitability stems from its **unique properties** and its nature as a **versatile element**, making it the central atom in biochemistry.</p>
-                            </div>
-                        </div>
-                        <!-- Step 3 -->
-                        <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col md:flex-row gap-6">
-                            <img src="https://images.unsplash.com/photo-1635322961555-a0589a8e9323?q=80&w=1600&auto=format&fit=crop" alt="Atomic electron shells diagram" class="w-full md:w-1/3 h-48 object-cover rounded-md">
-                            <div class="flex-1">
-                                <h2 class="text-2xl font-bold text-white">3. The Atomic Versatility of Carbon: Bonding for Stability</h2>
-                                <p class="mt-4">This segment delves into the atomic reasons for carbon's versatility. With an **atomic number of 6**, it has **four electrons in its outermost shell**. To achieve stability (the **octet rule**), it forms up to **four covalent bonds**, sharing electrons with other atoms. This allows it to create the diverse chains, branches, and rings that form the frameworks of biological molecules, as exemplified by methane (CH4).</p>
-                            </div>
-                        </div>
+                    <p>This is a guided path through the core concepts of the document. Start with the first topic and follow the links at the bottom of each page to proceed.</p>
+                    <ul class="list-decimal pl-5 space-y-3 mt-6">
+                        <li><a href="#" class="nav-link text-xl text-sky-400 hover:underline" data-page="study-path-1">Biological Macromolecules: The Organic Basis of Cells</a></li>
+                        <li><a href="#" class="nav-link text-xl text-sky-400 hover:underline" data-page="study-path-2">Carbon: The Essential 'Backbone' of Life's Molecules</a></li>
+                        <li><a href="#" class="nav-link text-xl text-sky-400 hover:underline" data-page="study-path-3">The Atomic Versatility of Carbon: Bonding for Stability</a></li>
+                    </ul>
+                    <hr class="border-slate-700 my-8">
+                    <p>See also: <a href="#" class="internal-link" data-page="study-guide">Study Guide</a></p>
+                </div>
+
+                <!-- Page: Study Path 1 -->
+                <div class="page-content prose-dark max-w-none" id="study-path-1" style="display: none;">
+                    <h1>1. Biological Macromolecules: The Organic Basis of Cells</h1>
+                    <img src="assets/1_1__biological_macromolecules__the_organic_basis_of_cells_3.png" alt="Biological Macromolecules" class="rounded-lg shadow-lg my-6 max-w-full md:max-w-xl mx-auto">
+                    <p>This segment introduces the fundamental building blocks of life at a molecular level. Cells are composed of complex molecules known as <strong>macromolecules</strong>. These include essential compounds such as <strong>proteins</strong>, <strong>nucleic acids (RNA and DNA)</strong>, <strong>carbohydrates</strong>, and <strong>lipids</strong>, each playing vital roles in cellular structure and function. The document clarifies that these macromolecules are a crucial subset of <strong>organic molecules</strong>.</p>
+                    <p>An <strong>organic molecule</strong> is broadly defined as any liquid, solid, or gas that contains carbon. This highlights carbon's pervasive presence in biological systems. The relationship is hierarchical: all biological macromolecules are organic molecules, underscoring carbon's foundational importance.</p>
+                    <hr class="border-slate-700 my-8">
+                    <div class="flex justify-end">
+                        <a href="#" class="nav-link inline-block bg-sky-600 text-white font-semibold px-6 py-2 rounded-md hover:bg-sky-500 transition-colors" data-page="study-path-2">Next: Carbon's 'Backbone' Role →</a>
                     </div>
                 </div>
 
-                <!-- Glossary Page -->
-                <div class="page-content prose-dark max-w-none" id="page-glossary" style="display: none;">
-                    <h1>Glossary of Key Terms</h1>
-                    <div class="mt-8 space-y-6">
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Macromolecules</h3>
-                            <p class="mt-1">Complex molecules, such as proteins, nucleic acids (RNA and DNA), carbohydrates, and lipids, that comprise cells and are a subset of organic molecules especially important for life.</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Organic molecules</h3>
-                            <p class="mt-1">Any carbon-containing liquid, solid, or gas; macromolecules are a subset of these that are especially important for life.</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Carbon</h3>
-                            <p class="mt-1">The fundamental element with unique properties, capable of forming up to four covalent bonds, making it the basic structural component or 'backbone' of macromolecules.</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Covalent bonds</h3>
-                            <p class="mt-1">Bonds formed by atoms sharing pairs of electrons with other atoms to satisfy the octet rule, allowing carbon to bond to as many as four different atoms.</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Octet rule</h3>
-                            <p class="mt-1">The principle satisfied by carbon atoms when they form up to four covalent bonds, resulting in a filled outermost electron shell.</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold text-teal-300">Atomic number</h3>
-                            <p class="mt-1">A characteristic of an atom, which for carbon is 6, indicating it has six electrons and six protons.</p>
-                        </div>
+                <!-- Page: Study Path 2 -->
+                <div class="page-content prose-dark max-w-none" id="study-path-2" style="display: none;">
+                    <h1>2. Carbon: The Essential 'Backbone' of Life's Molecules</h1>
+                    <img src="assets/2_2__carbon__the_essential__backbone__of_life_s_molecules_4.png" alt="Carbon Backbone" class="rounded-lg shadow-lg my-6 max-w-full md:max-w-xl mx-auto">
+                    <p>Building upon the introduction of macromolecules, this section explains <em>why</em> carbon is indispensable. The document states that carbon is the <strong>fundamental component</strong> for all biological macromolecules. It serves as the <strong>basic structural component</strong>, often referred to as the 'backbone,' upon which these complex molecules are built.</p>
+                    <p>Carbon's suitability for this role stems from its <strong>unique properties</strong> and its nature as a <strong>versatile element</strong>. These characteristics allow it to form the diverse and intricate structures necessary for life's chemistry, making it the central atom in biochemistry.</p>
+                    <hr class="border-slate-700 my-8">
+                    <div class="flex justify-between">
+                         <a href="#" class="nav-link inline-block bg-slate-700 text-white font-semibold px-6 py-2 rounded-md hover:bg-slate-600 transition-colors" data-page="study-path-1">← Previous: Macromolecules</a>
+                         <a href="#" class="nav-link inline-block bg-sky-600 text-white font-semibold px-6 py-2 rounded-md hover:bg-sky-500 transition-colors" data-page="study-path-3">Next: Carbon's Versatility →</a>
                     </div>
                 </div>
 
-                <!-- Quizzes Page -->
-                <div class="page-content prose-dark max-w-none" id="page-quizzes" style="display: none;">
-                    <h1>Quizzes</h1>
-                    <p>Test your knowledge with the following quizzes based on the study material.</p>
-                    
+                <!-- Page: Study Path 3 -->
+                <div class="page-content prose-dark max-w-none" id="study-path-3" style="display: none;">
+                     <h1>3. The Atomic Versatility of Carbon: Bonding for Stability</h1>
+                     <img src="assets/3_3__the_atomic_versatility_of_carbon__bonding_for_stability_5.png" alt="Carbon Bonding" class="rounded-lg shadow-lg my-6 max-w-full md:max-w-xl mx-auto">
+                     <p>This segment delves into the atomic reasons behind carbon's versatility as a structural element. A carbon atom has an <strong>atomic number of 6</strong>, meaning it possesses six electrons and six protons. Its electrons are distributed with two filling the inner shell, leaving <strong>four electrons in the second (outermost) shell</strong>. This outermost shell is <strong>incomplete</strong>, making carbon reactive.</p>
+                     <p>To achieve stability, carbon atoms strive to complete their outermost electron shell, typically by obtaining eight electrons (the <strong>octet rule</strong>). They do this by forming <strong>covalent bonds</strong>, where they share electron pairs with other atoms. Crucially, carbon can form <strong>up to four covalent bonds</strong> with other atoms. This allows it to create long chains, branched structures, and rings—the diverse frameworks of biological molecules.</p>
+                     <p>The <strong>methane molecule (CH4)</strong> is provided as a clear example. In methane, the carbon atom forms a single covalent bond with each of its four hydrogen atoms. Through this sharing of electrons, both the carbon and hydrogen atoms achieve a filled outermost shell, demonstrating carbon's ability to form stable compounds.</p>
+                     <hr class="border-slate-700 my-8">
+                     <div class="flex justify-start">
+                         <a href="#" class="nav-link inline-block bg-slate-700 text-white font-semibold px-6 py-2 rounded-md hover:bg-slate-600 transition-colors" data-page="study-path-2">← Previous: Carbon's 'Backbone' Role</a>
+                     </div>
+                </div>
+
+                <!-- Page: Quizzes -->
+                <div class="page-content" id="quizzes" style="display: none;">
+                    <h1 class="text-3xl font-bold text-white mb-8">Test Your Knowledge</h1>
+
                     <!-- Multiple Choice Quiz -->
-                    <div id="mc-quiz-container" class="mt-10">
-                        <h2 class="text-2xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2">Multiple Choice Quiz</h2>
-                        <div class="space-y-8">
-                            <!-- Question 1 -->
-                            <div class="quiz-question bg-gray-800 p-6 rounded-lg" data-correct="1">
-                                <p class="font-semibold text-lg">1. Which of the following are listed as examples of macromolecules that comprise cells?</p>
-                                <div class="mt-4 space-y-2">
-                                    <label class="block"><input type="radio" name="q1" value="0" class="mr-2"> Salts, minerals, water, and gases</label>
-                                    <label class="block"><input type="radio" name="q1" value="1" class="mr-2"> Proteins, nucleic acids, carbohydrates, and lipids</label>
-                                    <label class="block"><input type="radio" name="q1" value="2" class="mr-2"> Sugars, starches, acids, and bases</label>
-                                    <label class="block"><input type="radio" name="q1" value="3" class="mr-2"> Ions, atoms, electrons, and protons</label>
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 mb-8">
+                        <h2 class="text-2xl font-semibold text-white mb-4">Multiple Choice Quiz</h2>
+                        <form id="mc-quiz">
+                            <div class="space-y-6">
+                                <!-- Question 1 -->
+                                <div class="mc-question">
+                                    <p class="font-medium text-slate-200 mb-2">1. Which of the following are listed as examples of macromolecules that comprise cells?</p>
+                                    <div class="space-y-2">
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q1" value="0" class="mr-3 shrink-0"><span>Salts, minerals, water, and gases</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q1" value="1" class="mr-3 shrink-0"><span>Proteins, nucleic acids, carbohydrates, and lipids</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q1" value="2" class="mr-3 shrink-0"><span>Sugars, starches, acids, and bases</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q1" value="3" class="mr-3 shrink-0"><span>Ions, atoms, electrons, and protons</span></label>
+                                    </div>
+                                </div>
+                                <!-- Question 2 -->
+                                <div class="mc-question">
+                                    <p class="font-medium text-slate-200 mb-2">2. What unique property makes carbon ideal to serve as the 'backbone' of macromolecules?</p>
+                                    <div class="space-y-2">
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q2" value="0" class="mr-3 shrink-0"><span>It is the most abundant element in the Earth's crust</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q2" value="1" class="mr-3 shrink-0"><span>It has a complete outermost electron shell naturally</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q2" value="2" class="mr-3 shrink-0"><span>It can form covalent bonds to as many as four different atoms</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q2" value="3" class="mr-3 shrink-0"><span>It is exceptionally lightweight and non-reactive</span></label>
+                                    </div>
+                                </div>
+                                <!-- Question 3 -->
+                                <div class="mc-question">
+                                    <p class="font-medium text-slate-200 mb-2">3. How many electrons are in the outermost electron shell of a carbon atom?</p>
+                                    <div class="space-y-2">
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q3" value="0" class="mr-3 shrink-0"><span>Two</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q3" value="1" class="mr-3 shrink-0"><span>Four</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q3" value="2" class="mr-3 shrink-0"><span>Six</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q3" value="3" class="mr-3 shrink-0"><span>Eight</span></label>
+                                    </div>
+                                </div>
+                                 <!-- Question 4 -->
+                                <div class="mc-question">
+                                    <p class="font-medium text-slate-200 mb-2">4. What is the primary reason carbon atoms form up to four covalent bonds with other atoms?</p>
+                                    <div class="space-y-2">
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q4" value="0" class="mr-3 shrink-0"><span>To increase their atomic number</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q4" value="1" class="mr-3 shrink-0"><span>To become inert gases</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q4" value="2" class="mr-3 shrink-0"><span>To satisfy the octet rule</span></label>
+                                        <label class="quiz-option flex items-center p-3 border-2 border-slate-600 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors"><input type="radio" name="q4" value="3" class="mr-3 shrink-0"><span>To become radioactive</span></label>
+                                    </div>
                                 </div>
                             </div>
-                             <!-- Question 2 -->
-                            <div class="quiz-question bg-gray-800 p-6 rounded-lg" data-correct="1">
-                                <p class="font-semibold text-lg">2. According to the document, what is the definition of an 'organic molecule'?</p>
-                                <div class="mt-4 space-y-2">
-                                    <label class="block"><input type="radio" name="q2" value="0" class="mr-2"> Any molecule found exclusively in living organisms</label>
-                                    <label class="block"><input type="radio" name="q2" value="1" class="mr-2"> Any carbon-containing liquid, solid, or gas</label>
-                                    <label class="block"><input type="radio" name="q2" value="2" class="mr-2"> Any molecule that contains hydrogen and oxygen</label>
-                                    <label class="block"><input type="radio" name="q2" value="3" class="mr-2"> Any molecule that is essential for life</label>
-                                </div>
+                            <div class="mt-8">
+                                <button type="submit" class="bg-sky-600 text-white font-semibold px-6 py-2 rounded-md hover:bg-sky-500 transition-colors">Submit Quiz</button>
+                                <div id="mc-quiz-results" class="mt-4 font-semibold"></div>
                             </div>
-                            <!-- Question 3 -->
-                            <div class="quiz-question bg-gray-800 p-6 rounded-lg" data-correct="2">
-                                <p class="font-semibold text-lg">3. What unique property makes carbon ideal to serve as the 'backbone' of macromolecules?</p>
-                                <div class="mt-4 space-y-2">
-                                    <label class="block"><input type="radio" name="q3" value="0" class="mr-2"> It is the most abundant element in the Earth's crust</label>
-                                    <label class="block"><input type="radio" name="q3" value="1" class="mr-2"> It has a complete outermost electron shell naturally</label>
-                                    <label class="block"><input type="radio" name="q3" value="2" class="mr-2"> It can form covalent bonds to as many as four different atoms</label>
-                                    <label class="block"><input type="radio" name="q3" value="3" class="mr-2"> It is exceptionally lightweight and non-reactive</label>
-                                </div>
-                            </div>
-                            <!-- Question 4 -->
-                            <div class="quiz-question bg-gray-800 p-6 rounded-lg" data-correct="1">
-                                <p class="font-semibold text-lg">4. How many electrons are in the outermost electron shell of a carbon atom?</p>
-                                <div class="mt-4 space-y-2">
-                                    <label class="block"><input type="radio" name="q4" value="0" class="mr-2"> Two</label>
-                                    <label class="block"><input type="radio" name="q4" value="1" class="mr-2"> Four</label>
-                                    <label class="block"><input type="radio" name="q4" value="2" class="mr-2"> Six</label>
-                                    <label class="block"><input type="radio" name="q4" value="3" class="mr-2"> Eight</label>
-                                </div>
-                            </div>
-                            <!-- Question 5 -->
-                            <div class="quiz-question bg-gray-800 p-6 rounded-lg" data-correct="2">
-                                <p class="font-semibold text-lg">5. What is the primary reason carbon atoms form up to four covalent bonds with other atoms?</p>
-                                <div class="mt-4 space-y-2">
-                                    <label class="block"><input type="radio" name="q5" value="0" class="mr-2"> To increase their atomic number</label>
-                                    <label class="block"><input type="radio" name="q5" value="1" class="mr-2"> To become inert gases</label>
-                                    <label class="block"><input type="radio" name="q5" value="2" class="mr-2"> To satisfy the octet rule</label>
-                                    <label class="block"><input type="radio" name="q5" value="3" class="mr-2"> To become radioactive</label>
-                                </div>
-                            </div>
-                        </div>
-                        <button id="submit-mc-quiz" class="mt-8 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition-colors">Submit Quiz</button>
-                        <div id="mc-quiz-results" class="mt-6 text-lg font-semibold"></div>
+                        </form>
                     </div>
 
                     <!-- True/False Quiz -->
-                     <div class="mt-12">
-                        <h2 class="text-2xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2">True/False Quiz</h2>
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 mb-8 prose-dark max-w-none">
+                        <h2 class="text-2xl font-semibold text-white mb-4 !mt-0">True/False Quiz</h2>
                         <div class="space-y-4">
-                            <div class="bg-gray-800 p-4 rounded-lg">
+                            <div>
                                 <p>1. Macromolecules like proteins, nucleic acids, carbohydrates, and lipids are all considered a subset of organic molecules.</p>
-                                <details class="mt-2 text-sm"><summary class="cursor-pointer text-teal-400">View Answer</summary><p class="mt-2 p-2 bg-gray-700 rounded"><strong>Correct Answer:</strong> True<br><em>Explanation: The document states: 'The macromolecules are a subset of organic molecules (any carbon-containing liquid, solid, or gas) that are especially important for life.'</em></p></details>
+                                <details class="mt-2 bg-slate-700/50 p-3 rounded-lg"><summary class="cursor-pointer font-semibold">View Answer & Explanation</summary><p class="mt-2 text-sm"><strong>Correct Answer:</strong> True<br><em>Explanation: The document states: 'The macromolecules are a subset of organic molecules (any carbon-containing liquid, solid, or gas) that are especially important for life.'</em></p></details>
                             </div>
-                            <div class="bg-gray-800 p-4 rounded-lg">
+                             <div>
                                 <p>2. An organic molecule is exclusively defined as a carbon-containing solid.</p>
-                                <details class="mt-2 text-sm"><summary class="cursor-pointer text-teal-400">View Answer</summary><p class="mt-2 p-2 bg-gray-700 rounded"><strong>Correct Answer:</strong> False<br><em>Explanation: The document defines organic molecules as 'any carbon-containing liquid, solid, or gas,' not exclusively a solid.</em></p></details>
+                                <details class="mt-2 bg-slate-700/50 p-3 rounded-lg"><summary class="cursor-pointer font-semibold">View Answer & Explanation</summary><p class="mt-2 text-sm"><strong>Correct Answer:</strong> False<br><em>Explanation: The document defines organic molecules as 'any carbon-containing liquid, solid, or gas,' not exclusively a solid.</em></p></details>
                             </div>
-                             <div class="bg-gray-800 p-4 rounded-lg">
+                             <div>
                                 <p>3. Carbon atoms can form up to four covalent bonds to satisfy the octet rule.</p>
-                                <details class="mt-2 text-sm"><summary class="cursor-pointer text-teal-400">View Answer</summary><p class="mt-2 p-2 bg-gray-700 rounded"><strong>Correct Answer:</strong> True<br><em>Explanation: The document explicitly states: 'Therefore, carbon atoms can form up to four covalent bonds with other atoms to satisfy the octet rule.'</em></p></details>
-                            </div>
-                        </div>
-                     </div>
-
-                    <!-- Short Answer Quiz -->
-                    <div class="mt-12">
-                        <h2 class="text-2xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2">Short Answer Quiz</h2>
-                        <div class="space-y-6">
-                            <div class="bg-gray-800 p-4 rounded-lg">
-                                <p class="font-semibold">1. Explain how carbon's atomic structure and bonding capabilities enable it to play a central structural role in complex biological molecules.</p>
-                                <textarea class="mt-2 w-full bg-gray-700 text-gray-200 rounded p-2 border border-gray-600 focus:ring-teal-500 focus:border-teal-500" rows="3" placeholder="Your answer here..."></textarea>
-                            </div>
-                            <div class="bg-gray-800 p-4 rounded-lg">
-                                <p class="font-semibold">2. How does carbon's ability to form four covalent bonds contribute to the vast diversity of biological macromolecules?</p>
-                                <textarea class="mt-2 w-full bg-gray-700 text-gray-200 rounded p-2 border border-gray-600 focus:ring-teal-500 focus:border-teal-500" rows="3" placeholder="Your answer here..."></textarea>
+                                <details class="mt-2 bg-slate-700/50 p-3 rounded-lg"><summary class="cursor-pointer font-semibold">View Answer & Explanation</summary><p class="mt-2 text-sm"><strong>Correct Answer:</strong> True<br><em>Explanation: The document explicitly states: 'Therefore, carbon atoms can form up to four covalent bonds with other atoms to satisfy the octet rule.'</em></p></details>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Short Answer Quiz -->
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 prose-dark max-w-none">
+                        <h2 class="text-2xl font-semibold text-white mb-4 !mt-0">Short Answer Quiz</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="saq1" class="block font-medium mb-2">1. The document describes carbon as the 'fundamental component' and 'backbone' of macromolecules. Based on its atomic structure and bonding capabilities described, explain how these properties enable carbon to play such a central structural role in complex biological molecules.</label>
+                                <textarea id="saq1" rows="4" class="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                            </div>
+                             <div>
+                                <label for="saq2" class="block font-medium mb-2">2. Carbon's ability to form up to four covalent bonds is highlighted as a unique property. How does this specific bonding capacity directly contribute to the vast diversity and structural complexity observed in biological macromolecules like proteins and nucleic acids?</label>
+                                <textarea id="saq2" rows="4" class="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                            </div>
+                             <div>
+                                <label for="saq3" class="block font-medium mb-2">3. The document notes that one learning objective is to 'describe the role of functional groups in biological molecules,' although functional groups are not detailed. Given carbon's versatility and its role as a backbone, infer why the addition of 'functional groups' to a carbon skeleton would be crucial for the specific functions and characteristics of different macromolecules.</label>
+                                <textarea id="saq3" rows="4" class="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sidebar = document.getElementById('sidebar');
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const navLinks = document.querySelectorAll('.sidebar-link');
-        const internalLinks = document.querySelectorAll('.internal-link');
-        const pageContents = document.querySelectorAll('.page-content');
-        const breadcrumb = document.getElementById('breadcrumb');
 
-        const pageIdMap = {
-            'Home': 'home',
-            'Summary & Key Points': 'summary',
-            'Document Outline': 'outline',
-            'Detailed Study Guide': 'study-guide',
-            'Mind Map Visualization': 'mind-map',
-            'Key Terms & Concepts': 'key-terms',
-            'Timeline of Discoveries': 'timeline',
-            'Real-World Applications': 'applications',
-            'In-depth Study Path': 'study-path',
-            'Glossary of Terms': 'glossary',
-            'Interactive Quizzes': 'quizzes',
-            'Glossary': 'glossary',
-            'Outline': 'outline'
-        };
-        
-        function showPage(pageId) {
-            pageContents.forEach(page => {
-                page.style.display = 'none';
-            });
-            const activePage = document.getElementById('page-' + pageId);
-            if (activePage) {
-                activePage.style.display = 'block';
-            } else {
-                 document.getElementById('page-home').style.display = 'block';
-            }
-        }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link, .internal-link');
+            const pageContents = document.querySelectorAll('.page-content');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            const openSidebarBtn = document.getElementById('open-sidebar-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
 
-        function updateBreadcrumb(pageTitle) {
-            breadcrumb.innerHTML = `<span><a href="#" class="internal-link" data-page="home">Home</a></span> <span class="mx-2 text-gray-500">/</span> <span>${pageTitle}</span>`;
-            // Re-add event listeners for new breadcrumb links
-            document.querySelectorAll('#breadcrumb .internal-link').forEach(link => {
-                link.addEventListener('click', handleLinkClick);
-            });
-        }
-        
-        function handleLinkClick(event) {
-            event.preventDefault();
-            const pageId = this.dataset.page;
+            const pageTitleMap = {
+                'home': ['Home'],
+                'summary': ['Home', 'Summary & Key Points'],
+                'outline': ['Home', 'Document Outline'],
+                'study-guide': ['Home', 'Detailed Study Guide'],
+                'glossary': ['Home', 'Glossary of Terms'],
+                'timeline': ['Home', 'Timeline of Discoveries'],
+                'applications': ['Home', 'Real-World Applications'],
+                'hierarchical-terms': ['Home', 'Key Terms & Concepts'],
+                'mind-map': ['Home', 'Mind Map'],
+                'study-path': ['Home', 'In-depth Study Path'],
+                'study-path-1': ['Home', 'In-depth Study Path', '1. Biological Macromolecules'],
+                'study-path-2': ['Home', 'In-depth Study Path', '2. Carbon\'s Backbone Role'],
+                'study-path-3': ['Home', 'In-depth Study Path', '3. Carbon\'s Versatility'],
+                'quizzes': ['Home', 'Quizzes'],
+            };
             
-            showPage(pageId);
-            
-            navLinks.forEach(link => {
-                link.classList.toggle('active', link.dataset.page === pageId);
-            });
-            
-            const pageTitle = this.textContent.trim();
-            updateBreadcrumb(pageTitle);
-
-            if (window.innerWidth < 1024) {
-                sidebar.classList.add('-translate-x-full');
-            }
-        }
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', handleLinkClick);
-        });
-        
-        document.body.addEventListener('click', function(event) {
-            if (event.target.matches('.internal-link')) {
-                handleLinkClick.call(event.target, event);
-            }
-        });
-
-        mobileMenuButton.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-        });
-        
-        // MC Quiz Logic
-        const submitMcQuizButton = document.getElementById('submit-mc-quiz');
-        submitMcQuizButton.addEventListener('click', () => {
-            const questions = document.querySelectorAll('#mc-quiz-container .quiz-question');
-            let score = 0;
-            
-            questions.forEach((question, index) => {
-                const correctAnswer = question.dataset.correct;
-                const selectedAnswer = question.querySelector(`input[name="q${index+1}"]:checked`);
-                
-                // Reset styles
-                question.querySelectorAll('label').forEach(label => {
-                    label.classList.remove('text-green-400', 'text-red-400');
-                });
-
-                if (selectedAnswer) {
-                    if (selectedAnswer.value === correctAnswer) {
-                        score++;
-                        selectedAnswer.parentElement.classList.add('text-green-400');
-                    } else {
-                        selectedAnswer.parentElement.classList.add('text-red-400');
-                        // Highlight correct answer
-                        const correctLabel = question.querySelector(`input[value="${correctAnswer}"]`).parentElement;
-                        correctLabel.classList.add('text-green-400');
+            function updateBreadcrumb(pageId) {
+                const path = pageTitleMap[pageId] || ['Home'];
+                breadcrumb.innerHTML = path.map((item, index) => {
+                    if (index === path.length - 1) {
+                        return `<span class="font-semibold text-slate-200">${item}</span>`;
                     }
+                    // This is a simplified breadcrumb, making previous items non-clickable for now
+                    return `<span class="breadcrumb-item">${item}</span> <span class="mx-2 text-slate-500">/</span> `;
+                }).join('');
+            }
+
+            function showPage(pageId) {
+                pageContents.forEach(page => {
+                    page.style.display = 'none';
+                });
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.style.display = 'block';
+                    updateBreadcrumb(pageId);
+                }
+                
+                // Scroll to top of main content area
+                document.querySelector('main').scrollTop = 0;
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const pageId = this.dataset.page;
+                    if (pageId) {
+                        showPage(pageId);
+
+                        if (window.innerWidth < 1024) {
+                            sidebar.classList.add('-translate-x-full');
+                            sidebarBackdrop.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Mobile sidebar toggle
+            openSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarBackdrop.classList.remove('hidden');
+            });
+
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarBackdrop.classList.add('hidden');
+            });
+            
+            sidebarBackdrop.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarBackdrop.classList.add('hidden');
+            });
+
+
+            // MC Quiz Logic
+            const mcQuizForm = document.getElementById('mc-quiz');
+            const mcQuizResults = document.getElementById('mc-quiz-results');
+            const mcCorrectAnswers = { q1: '1', q2: '2', q3: '1', q4: '2' };
+            
+            mcQuizForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let score = 0;
+                const totalQuestions = Object.keys(mcCorrectAnswers).length;
+                const formData = new FormData(mcQuizForm);
+
+                // Reset styles
+                document.querySelectorAll('.mc-question .quiz-option').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                });
+                
+                for (const [question, correctAnswer] of Object.entries(mcCorrectAnswers)) {
+                    const userAnswer = formData.get(question);
+                    const questionContainer = mcQuizForm.querySelector(`input[name="${question}"]`).closest('.mc-question');
+                    const options = questionContainer.querySelectorAll('.quiz-option');
+
+                    if (userAnswer) {
+                        const selectedOption = questionContainer.querySelector(`input[value="${userAnswer}"]`).closest('label');
+                        if (userAnswer === correctAnswer) {
+                            score++;
+                            selectedOption.classList.add('correct');
+                        } else {
+                            selectedOption.classList.add('incorrect');
+                            // Also highlight the correct one
+                            const correctOption = questionContainer.querySelector(`input[value="${correctAnswer}"]`).closest('label');
+                            correctOption.classList.add('correct');
+                        }
+                    } else {
+                        // Mark the correct answer if none was selected
+                        const correctOption = questionContainer.querySelector(`input[value="${correctAnswer}"]`).closest('label');
+                        correctOption.classList.add('correct');
+                    }
+                }
+                
+                mcQuizResults.textContent = `You scored ${score} out of ${totalQuestions}.`;
+                if(score === totalQuestions) {
+                    mcQuizResults.className = 'mt-4 font-semibold text-green-400';
                 } else {
-                    // Highlight correct if unanswered
-                    const correctLabel = question.querySelector(`input[value="${correctAnswer}"]`).parentElement;
-                    correctLabel.classList.add('text-green-400');
+                     mcQuizResults.className = 'mt-4 font-semibold text-amber-400';
                 }
             });
 
-            const resultsContainer = document.getElementById('mc-quiz-results');
-            resultsContainer.textContent = `You scored ${score} out of ${questions.length}.`;
-            if(score === questions.length) {
-                resultsContainer.classList.add('text-green-400');
-                resultsContainer.classList.remove('text-yellow-400', 'text-red-400');
-            } else if (score >= questions.length / 2) {
-                resultsContainer.classList.add('text-yellow-400');
-                resultsContainer.classList.remove('text-green-400', 'text-red-400');
-            } else {
-                resultsContainer.classList.add('text-red-400');
-                resultsContainer.classList.remove('text-green-400', 'text-yellow-400');
-            }
         });
-
-    });
-</script>
+    </script>
 </body>
 </html>
