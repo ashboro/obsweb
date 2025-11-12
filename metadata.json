@@ -1,0 +1,5 @@
+{
+  "name": "Obsidian Site Builder",
+  "description": "Upload a zipped Obsidian vault and instantly generate an interactive, downloadable website using AI. This tool provides a simple interface to transform your notes into a polished, web-ready format.",
+  "requestFramePermissions": []
+}
