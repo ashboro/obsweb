@@ -1,8 +1,0 @@
-export enum AppState {
-  UPLOAD,
-  MENU,
-  GENERATING,
-  DOWNLOAD,
-  GENERATING_SCORM,
-  DOWNLOAD_SCORM,
-}
